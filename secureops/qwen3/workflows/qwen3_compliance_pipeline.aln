@@ -1,0 +1,20 @@
+workflow_qwen3_compliance {
+    name: Qwen3 Compliance Monitor;
+    schedule: [hourly, on_demand, rogue_actor_detected];
+    jobs: [
+        checkout_repository,
+        setup_environment,
+        install_dependencies,
+        run_compliance_check(id=Q3audit),
+        ingest_program_data(source=/secureops/qwen3/databanks/program.json),
+        monitor_rogue_actors(id=RAmonitor),
+        log_task_output
+    ];
+    actions: {
+        compliance_check: python3 qwen3_compliancecheck.py,
+        data_ingestion: python3 qwen3_dataingest.py,
+        rogue_actor_monitor: python3 qwen3_rogue_monitor.py
+    };
+    audit_log: persistent, encrypted;
+    sandbox_mode: enforced, rollback_enabled;
+}
